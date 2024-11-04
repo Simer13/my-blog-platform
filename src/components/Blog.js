@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image'; // Import the Image component from Next.js
 
 const Blog = () => {
   const blogs = [
@@ -59,9 +60,22 @@ const Blog = () => {
                 </h3>
                 <p className="mt-5 line-clamp-3 text-sm leading-6 text-gray-600">{blog.excerpt}</p>
               </div>
-              <img src={blog.imageUrl} alt={blog.title} className="mt-4 mb-4 h-64 w-full rounded-md object-cover shadow-md" />
+              {/* Change img to Image component */}
+              <Image 
+                src={blog.imageUrl} 
+                alt={blog.title} 
+                className="mt-4 mb-4 h-64 w-full rounded-md object-cover shadow-md" 
+                width={500} // Provide width
+                height={400} // Provide height
+              />
               <div className="relative mt-8 flex items-center gap-x-4">
-                <img src={blog.imageUrl} alt={blog.title} className="h-10 w-10 rounded-full bg-gray-50" />
+                <Image 
+                  src={blog.imageUrl} 
+                  alt={blog.title} 
+                  className="h-10 w-10 rounded-full bg-gray-50" 
+                  width={40} // Provide width
+                  height={40} // Provide height
+                />
                 <div className="text-sm leading-6">
                   <p className="font-semibold text-gray-900">{blog.author}</p>
                   <p className="text-gray-600">{blog.authorRole}</p>
