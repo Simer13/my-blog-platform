@@ -29,7 +29,7 @@ export default function About() {
           className="text-center"
         >
           <p className="text-xl leading-relaxed mb-8">
-            Welcome to <span className="font-bold text-purple-400">Magica</span> – the place where your imagination soars and stories come to life! Our platform is a magical universe designed for dreamers, authors, and readers who believe in the power of storytelling. Whether you're writing your next big novel, creating animated visuals, or diving into the worlds created by others, Magica has the tools to make it happen.
+            Welcome to <span className="font-bold text-purple-400">Magica</span> – the place where your imagination soars and stories come to life! Our platform is a magical universe designed for dreamers, authors, and readers who believe in the power of storytelling. Whether you are writing your next big novel, creating animated visuals, or diving into the worlds created by others, Magica has the tools to make it happen.
           </p>
         </motion.div>
 
@@ -67,7 +67,7 @@ export default function About() {
         >
           <h3 className="text-3xl font-semibold mb-4">Join the Magical Journey</h3>
           <p className="text-lg text-gray-300 mb-6">
-            Whether you're a creator or a reader, Magica is the place where your journey begins. Dive into the world of endless possibilities.
+            Whether you are a creator or a reader, Magica is the place where your journey begins. Dive into the world of endless possibilities.
           </p>
           <motion.a
             whileHover={{ scale: 1.05 }}

@@ -45,7 +45,7 @@ const Bento = () => {
               <div className="px-8 pt-8 sm:px-10 sm:pt-10">
                 <p className="mt-2 text-lg font-medium tracking-tight text-gray-950">SEO Optimization</p>
                 <p className="mt-2 max-w-lg text-sm text-gray-600">
-                  Enhance your blog's visibility with built-in SEO tools and analytics.
+                  Enhance your blog visibility with built-in SEO tools and analytics.
                 </p>
               </div>
               <div className="flex flex-1 items-center justify-center px-8 sm:px-10 lg:pb-2">
