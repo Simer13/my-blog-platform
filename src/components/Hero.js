@@ -1,19 +1,16 @@
 "use client"; 
 
 import React from 'react';
-
+import Link from 'next/link'; // Import Link from next/link
 
 const Hero = () => {
   return (
     <div className="bg-white">
       <header className="absolute inset-x-0 top-0 z-50">
-        
-
         <div className="lg:hidden" role="dialog" aria-modal="true">
           <div className="fixed inset-0 z-50"></div>
           <div className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
             <div className="flex items-center justify-between">
-              
               <button type="button" className="-m-2.5 rounded-md p-2.5 text-gray-700">
                 <span className="sr-only">Close menu</span>
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
@@ -23,9 +20,11 @@ const Hero = () => {
             </div>
             <div className="mt-6 flow-root">
               <div className="-my-6 divide-y divide-gray-500/10">
-                
                 <div className="py-6">
-                  <a href="#" className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Log in</a>
+                  {/* Replace the <a> tag with <Link> */}
+                  <Link href="/Login" className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">
+                    Log in
+                  </Link>
                 </div>
               </div>
             </div>
@@ -46,10 +45,10 @@ const Hero = () => {
           <div className="hidden sm:mb-8 sm:flex sm:justify-center">
             <div className="relative rounded-full px-3 py-1 text-sm leading-6 text-gray-600 ring-1 ring-gray-900/10 hover:ring-gray-900/20">
               Announcing our upcoming versions.{' '}
-              <a href="#" className="font-semibold text-indigo-600">
+              <Link href="#" className="font-semibold text-indigo-600">
                 <span className="absolute inset-0" aria-hidden="true" />
                 Read more <span aria-hidden="true">&rarr;</span>
-              </a>
+              </Link>
             </div>
           </div>
           <div className="text-center">
@@ -60,12 +59,13 @@ const Hero = () => {
               Join a community of passionate bloggers. Unlock strategies, insights, and resources to amplify your reach and grow your audience online.
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
-              <a href="/Login" className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+              {/* Replace the <a> tag with <Link> */}
+              <Link href="/Login" className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
                 Get started
-              </a>
-              <a href="#" className="text-sm font-semibold leading-6 text-gray-900">
+              </Link>
+              <Link href="#" className="text-sm font-semibold leading-6 text-gray-900">
                 Learn more <span aria-hidden="true">→</span>
-              </a>
+              </Link>
             </div>
           </div>
         </div>
