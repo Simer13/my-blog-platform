@@ -12,24 +12,27 @@ import 'react-quill/dist/quill.snow.css';
 export default function Dashboard() {
   const [content, setContent] = useState('');
   const [showProfile, setShowProfile] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [url, setUrl] = useState(''); // Declare the URL state
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [url, setUrl] = useState(''); 
 
   useEffect(() => {
     // Set the current URL once the component is mounted (client-side only)
     setUrl(window.location.href);
   }, []);
 
-  const handleContentChange = (value) => {
+  const handleContentChange = (value: string) => {
     setContent(value);
   };
+  
+  
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; // Use optional chaining to handle potential null/undefined
     if (file) {
       setSelectedImage(URL.createObjectURL(file));
     }
   };
+  
 
   if (!url) {
     // You can render a loading state or return null until the URL is set
