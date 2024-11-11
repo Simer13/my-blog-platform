@@ -97,7 +97,7 @@ export default function Contact() {
             </div>
             {open === 1 && (
               <div className="px-4 py-2 bg-gray-700 text-lg text-gray-300">
-                We welcome guest posts! To contribute, simply reach out via our contact form or email. We'll get back to you with submission guidelines and content criteria.
+                We welcome guest posts! To contribute, simply reach out via our contact form or email. We will get back to you with submission guidelines and content criteria.
               </div>
             )}
           </div>
@@ -145,7 +145,7 @@ export default function Contact() {
             </div>
             {open === 5 && (
               <div className="px-4 py-2 bg-gray-700 text-lg text-gray-300">
-                Absolutely! We love hearing suggestions from our readers. You can send us your request through the contact form, and we'll consider it for future posts.
+                Absolutely! We love hearing suggestions from our readers. You can send us your request through the contact form, and we will consider it for future posts.
               </div>
             )}
           </div>

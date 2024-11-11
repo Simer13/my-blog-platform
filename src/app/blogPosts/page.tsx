@@ -1,8 +1,8 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { FaBars, FaSmile, FaUserCircle, FaTimes } from 'react-icons/fa';
-import { AiOutlineUpload } from 'react-icons/ai';
+import { FaBars, FaUserCircle, FaTimes } from 'react-icons/fa';
+
 import { FacebookShareButton, TwitterShareButton, LinkedinShareButton } from 'react-share';
 import Image from 'next/image';  // Import react-image for optimized loading
 
