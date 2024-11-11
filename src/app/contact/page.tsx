@@ -2,9 +2,9 @@
 import { useState } from 'react';
 
 export default function Contact() {
-  const [open, setOpen] = useState(null);
+  const [open, setOpen] = useState<number | null>(null);
 
-  const toggleFAQ = (index) => {
+  const toggleFAQ = (index : number) => {
     setOpen(open === index ? null : index);
   };
 

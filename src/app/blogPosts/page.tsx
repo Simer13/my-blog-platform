@@ -136,6 +136,7 @@ export default function Dashboard() {
               <button
                 onClick={() => setShowProfile(false)}
                 className="text-black p-1 hover:text-red-500"
+                aria-label="Toggle Profile Sidebar"
               >
                 <FaTimes size={20} />
               </button>
@@ -161,10 +162,12 @@ export default function Dashboard() {
                 className="rounded-lg"
               />
             )}
+            
             <input
               type="file"
               accept="image/*"
               onChange={handleImageUpload}
+              aria-label="Upload a cover image"
               className="p-2 bg-gray-100 border border-gray-300 rounded-lg"
             />
           </div>
