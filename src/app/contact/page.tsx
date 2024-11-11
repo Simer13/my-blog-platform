@@ -70,7 +70,7 @@ export default function Contact() {
               <textarea
                 id="message"
                 name="message"
-                rows="4"
+                rows={4}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 required
               />
