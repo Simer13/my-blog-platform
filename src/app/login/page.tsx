@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -20,11 +21,12 @@ export default function LoginPage() {
 
       if (response.ok) {
         // Redirect to the dashboard on success
-        router.push('/blogadmindashboard');
+        router.push('/authordashboard');
       } else {
         const data = await response.json();
         setError(data.message || 'Login failed');
       }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       setError('Something went wrong. Please try again.');
     }
@@ -35,6 +37,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold text-center mb-6">Login to Your Account</h2>
 
+        {/* Display error message if there is one */}
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
         <form onSubmit={handleLogin}>

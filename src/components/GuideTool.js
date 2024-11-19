@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from 'react';
+import Image from 'next/image';
 
 const GuideTool = () => {
   const [messages, setMessages] = useState([
@@ -48,10 +49,12 @@ const GuideTool = () => {
       >
         <div className="p-2 bg-transparent rounded-full shadow-lg hover:bg-green-500 hover:shadow-2xl transition duration-300 ease-in-out">
           {/* Custom Small Character Icon */}
-          <img
-            src="/path/to/your-custom-image.png"  // Replace this with your own image path
+          <Image
+            src="/path/to/your-custom-image.png"  // Replace with your image path
             alt="AI Bot"
-            className="w-8 h-8" // Makes the icon smaller (you can adjust this size)
+            width={32} // Set the width of the image (adjust as needed)
+            height={32} // Set the height of the image (adjust as needed)
+            className="w-8 h-8" // Optional: Adjust size with Tailwind classes
           />
         </div>
       </div>
