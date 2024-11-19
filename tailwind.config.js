@@ -64,5 +64,6 @@ module.exports = {
   plugins: [
     require('tailwindcss-animate'),
 	require('@tailwindcss/forms'), 
+	require('flowbite/plugin') 
   ],
 }
