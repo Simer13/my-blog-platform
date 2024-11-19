@@ -1,15 +1,19 @@
-// src/app/blogposts/[slug].tsx
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 
+type Post = {
+  title: string;
+  content: string;
+};
+
 export default function BlogPost() {
   const router = useRouter();
-  const { slug } = router.query; // Slug from URL
-  const [post, setPost] = useState(null);
+  const { slug } = router.query; 
+  const [post, setPost] = useState<Post | null>(null);
 
   useEffect(() => {
     if (slug) {
-      // Fetch the post using the slug (replace with your API call)
+    
       fetch(`/api/posts/${slug}`)
         .then(response => response.json())
         .then(data => setPost(data))
