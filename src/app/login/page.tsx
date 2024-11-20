@@ -21,7 +21,7 @@ export default function LoginPage() {
 
       if (response.ok) {
         // Redirect to the dashboard on success
-        router.push('/authordashboard');
+        router.push('/blogadmindashboard');
       } else {
         const data = await response.json();
         setError(data.message || 'Login failed');
