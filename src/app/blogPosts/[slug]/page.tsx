@@ -12,7 +12,7 @@ import {
   DocumentData,
   serverTimestamp,
 } from "firebase/firestore";
-import { ShareIcon, ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
+import {  ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
 
 interface BlogPost {
   title: string;
@@ -185,11 +185,14 @@ const BlogPostPage = () => {
             <ul className="space-y-4">
               {comments.map((comment) => (
                 <li key={comment.id} className="p-4 bg-gray-100 rounded-lg flex space-x-4">
-                  <img
-                    src={comment.userProfileImage}
-                    alt={comment.userName}
-                    className="w-10 h-10 rounded-full"
-                  />
+                  <Image
+    src={comment.userProfileImage}
+    alt={comment.userName}
+    width={800} // Set a width that fits your layout
+    height={600} // Set a height that fits your layout
+    className="w-10 h-10 rounded-full"
+  />
+                  
                   <div>
                     <p className="text-gray-700">{comment.message}</p>
                     <small className="text-sm text-gray-500">

@@ -21,6 +21,7 @@ export default function LoginPage() {
       // Firebase Authentication: Sign in with email and password
       await signInWithEmailAndPassword(auth, email, password);
       router.push('/blogadmindashboard'); // Redirect on successful login
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       // Display error message from Firebase
       setError(err.message || 'Login failed');
