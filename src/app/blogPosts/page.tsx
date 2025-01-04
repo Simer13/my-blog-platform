@@ -1,4 +1,6 @@
 "use client";
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from '../../../firebase/firebase';
 import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { FacebookShareButton, TwitterShareButton, LinkedinShareButton } from "react-share";
@@ -47,10 +49,27 @@ export default function Dashboard() {
     }
   };
 
-  const handlePublish = () => {
-    // After publishing, redirect or save the blog post with the generated slug
-    if (slug) {
-      window.location.href = `/blogposts/${slug}`;
+  // Handle the Publish action and save data to Firebase
+  const handlePublish = async () => {
+    try {
+      const blogData = {
+        title,
+        slug,
+        content,
+        coverImage: selectedImage,
+        url,
+        createdAt: new Date(),
+      };
+      
+      // Save the blog data to Firebase Firestore
+      const docRef = await addDoc(collection(db, "posts"), blogData);
+      console.log("Blog written and saved with ID: ", docRef.id);
+
+      // Optional: You can redirect or give feedback to the user after saving the data
+      alert("Blog published successfully!");
+
+    } catch (e) {
+      console.error("Error adding document: ", e);
     }
   };
 
@@ -94,15 +113,15 @@ export default function Dashboard() {
 
           {/* Avatar with Dropdown */}
           <div className="relative">
-          <Image
-                id="avatarButton"
-                onClick={() => setShowDropdown(!showDropdown)}
-                className="w-10 h-10 rounded-full cursor-pointer"
-                src="https://images.unsplash.com/photo-1517971129774-8a2b38fa128e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fHdyaXRlcnxlbnwwfHwwfHx8MA%3D%3D" 
-                alt="User dropdown"
-                width={40} 
-                height={40} 
-              />
+            <Image
+              id="avatarButton"
+              onClick={() => setShowDropdown(!showDropdown)}
+              className="w-10 h-10 rounded-full cursor-pointer"
+              src="https://images.unsplash.com/photo-1517971129774-8a2b38fa128e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fHdyaXRlcnxlbnwwfHwwfHx8MA%3D%3D"
+              alt="User dropdown"
+              width={40}
+              height={40}
+            />
             {showDropdown && (
               <div
                 id="userDropdown"

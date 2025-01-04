@@ -1,36 +1,34 @@
 'use client';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../../firebase/firebase'; 
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
+    setError(null); 
+    setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (response.ok) {
-        // Redirect to the dashboard on success
-        router.push('/blogadmindashboard');
-      } else {
-        const data = await response.json();
-        setError(data.message || 'Login failed');
-      }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      setError('Something went wrong. Please try again.');
+      // Firebase Authentication: Sign in with email and password
+      await signInWithEmailAndPassword(auth, email, password);
+      router.push('/blogadmindashboard'); // Redirect on successful login
+    } catch (err: any) {
+      // Display error message from Firebase
+      setError(err.message || 'Login failed');
+    } finally {
+      setLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
