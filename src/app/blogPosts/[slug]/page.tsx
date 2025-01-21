@@ -131,8 +131,10 @@ const BlogPostPage = () => {
   />
 )}
         <h1 className="text-4xl font-bold text-gray-800 mb-4">{post.title}</h1>
-        <div className="prose prose-lg max-w-none text-gray-700 mb-8">{post.content}</div>
-
+        <div
+  className="prose prose-lg max-w-none text-gray-700 mb-8"
+  dangerouslySetInnerHTML={{ __html: post.content }}
+/>
         <div className="flex space-x-4 mb-8">
           {/* Social Media Share Buttons */}
           <a
