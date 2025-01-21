@@ -65,7 +65,9 @@ const BlogPostPage = () => {
           const commentsList = commentsSnapshot.docs.map((doc) => ({
             id: doc.id,
             ...doc.data(),
-          })) as Comment[];
+            createdAt: doc.data().createdAt ? doc.data().createdAt.toDate() : new Date(), 
+          })) as Comment[]; 
+        
           setComments(commentsList);
         }
       } catch (error) {
@@ -123,7 +125,7 @@ const BlogPostPage = () => {
       <div className="bg-white rounded-lg shadow-md p-6">
       {post.imageUrl && (
   <Image
-    src={post.imageUrl}
+    src={post.imageUrl.startsWith('http') ? post.imageUrl : `/${post.imageUrl}`}
     alt={post.title || 'Blog Post Image'}
     width={800} // Set a width that fits your layout
     height={600} // Set a height that fits your layout
@@ -131,7 +133,10 @@ const BlogPostPage = () => {
   />
 )}
         <h1 className="text-4xl font-bold text-gray-800 mb-4">{post.title}</h1>
-        <div className="prose prose-lg max-w-none text-gray-700 mb-8">{post.content}</div>
+        <div
+  className="prose prose-lg max-w-none text-gray-700 mb-8"
+  dangerouslySetInnerHTML={{ __html: post.content }}
+/>
 
         <div className="flex space-x-4 mb-8">
           {/* Social Media Share Buttons */}
@@ -186,7 +191,7 @@ const BlogPostPage = () => {
               {comments.map((comment) => (
                 <li key={comment.id} className="p-4 bg-gray-100 rounded-lg flex space-x-4">
                   <Image
-    src={comment.userProfileImage}
+    src={comment.userProfileImage.startsWith('http') ? comment.userProfileImage : `/${comment.userProfileImage}`}
     alt={comment.userName}
     width={800} // Set a width that fits your layout
     height={600} // Set a height that fits your layout
