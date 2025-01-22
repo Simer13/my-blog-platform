@@ -15,9 +15,11 @@ export default function Dashboard() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [url, setUrl] = useState("");
   const [title, setTitle] = useState(""); // State to hold the blog title
-  const [slug, setSlug] = useState(""); // State to hold the generated slug
+  const [slug, setSlug] = useState(""); 
+  const [isClient, setIsClient] = useState(false); 
 
   useEffect(() => {
+    setIsClient(true);
     // Set the current URL once the component is mounted (client-side only)
     setUrl(window.location.href);
   }, []);
@@ -64,18 +66,24 @@ export default function Dashboard() {
       // Save the blog data to Firebase Firestore
       const docRef = await addDoc(collection(db, "posts"), blogData);
       console.log("Blog written and saved with ID: ", docRef.id);
-
+      window.location.reload();
       // Optional: You can redirect or give feedback to the user after saving the data
       alert("Blog published successfully!");
+      setTitle("");
+      setSlug("");
+      setContent("");
+      setSelectedImage(null);
 
     } catch (e) {
       console.error("Error adding document: ", e);
     }
   };
 
-  if (!url) {
-    return null;
+  if (!isClient) {
+    return null; // Don't render anything if not on the client side
   }
+
+  
 
   return (
     <div className="bg-white text-black min-h-screen flex">
