@@ -18,7 +18,14 @@ export default function Dashboard() {
   const [title, setTitle] = useState(""); // Blog title
   const [slug, setSlug] = useState(""); // Slug generated from title
   const [isClient, setIsClient] = useState(false); // To check if it's client-side
-  const [toc, setToc] = useState<unknown[]>([]); // Table of contents state
+  interface TocItem {
+    level: string;
+    text: string;
+    id: string;
+  }
+  
+  const [toc, setToc] = useState<TocItem[]>([]);
+   // Table of contents state
 
   useEffect(() => {
     setIsClient(true);
@@ -49,7 +56,7 @@ export default function Dashboard() {
   // Function to generate Table of Contents from content
   const updateTableOfContents = (content: string) => {
     const regex = /<h([1-6])[^>]*>(.*?)<\/h\1>/g; // Regex to find all headings
-    const tocItems: unknown[] = [];
+    const tocItems: TocItem[] = [];
     let match;
 
     while ((match = regex.exec(content)) !== null) {
