@@ -35,7 +35,7 @@ const BlogPostPage = () => {
   const [loading, setLoading] = useState(true);
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
-  const [tableOfContents, setTableOfContents] = useState<any[]>([]);
+  const [tableOfContents, setTableOfContents] = useState<unknown[]>([]);
 
   useEffect(() => {
     if (!slug) return;

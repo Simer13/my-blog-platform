@@ -18,7 +18,7 @@ export default function Dashboard() {
   const [title, setTitle] = useState(""); // Blog title
   const [slug, setSlug] = useState(""); // Slug generated from title
   const [isClient, setIsClient] = useState(false); // To check if it's client-side
-  const [toc, setToc] = useState<any[]>([]); // Table of contents state
+  const [toc, setToc] = useState<unknown[]>([]); // Table of contents state
 
   useEffect(() => {
     setIsClient(true);
