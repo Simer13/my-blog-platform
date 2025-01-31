@@ -35,7 +35,13 @@ const BlogPostPage = () => {
   const [loading, setLoading] = useState(true);
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
-  const [tableOfContents, setTableOfContents] = useState<unknown[]>([]);
+  interface TableOfContentsItem {
+    level: string;
+    text: string;
+    id: string;
+  }
+
+  const [tableOfContents, setTableOfContents] = useState<TableOfContentsItem[]>([]);
 
   useEffect(() => {
     if (!slug) return;
@@ -62,7 +68,7 @@ const BlogPostPage = () => {
 
           // Extract the Table of Contents based on headings in the content
           const headingRegex = /<(h[2-3])[^>]*>(.*?)<\/\1>/g;
-          const headings: unknown[] = [];
+          const headings: TableOfContentsItem[] = [];
           let match;
           while ((match = headingRegex.exec(postData.content))) {
             const level = match[1];
