@@ -4,19 +4,19 @@ import { useState } from 'react';
 export default function Contact() {
   const [open, setOpen] = useState<number | null>(null);
 
-  const toggleFAQ = (index : number) => {
+  const toggleFAQ = (index: number) => {
     setOpen(open === index ? null : index);
   };
 
   return (
     <div className="flex flex-col items-center justify-start min-h-screen bg-gray-800 text-white">
       {/* Contact Form Section */}
-      <div className="w-full md:w-2/3 flex rounded-lg shadow-lg overflow-hidden mt-16">
+      <div className="w-full md:w-2/3 flex flex-col md:flex-row rounded-lg shadow-lg overflow-hidden mt-16">
         {/* Left Section (Contact Information) */}
         <div className="w-full md:w-1/2 bg-gradient-to-r from-purple-800 to-blue-900 p-8 text-white">
           <h2 className="text-3xl font-bold mb-6">Contact Us</h2>
           <p className="text-lg mb-4">Feel free to reach out to us via the contact form or use the information below.</p>
-          
+
           <div className="flex items-center space-x-4 mb-6">
             <div className="text-xl">
               <span role="img" aria-label="phone">📞</span>

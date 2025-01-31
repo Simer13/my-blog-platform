@@ -6,15 +6,13 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-wrap justify-between">
           {/* Column 1: Brand and About */}
-          <div className="w-full sm:w-1/2 md:w-1/4 mb-6">
+          <div className="w-full sm:w-1/2 md:w-1/4 mb-6 text-center sm:text-left">
             <h3 className="text-white font-bold text-xl mb-2">Magica</h3>
-            <p className="text-sm">
-              A vision for Writers
-            </p>
+            <p className="text-sm">A vision for Writers</p>
           </div>
 
           {/* Column 2: Quick Links */}
-          <div className="w-full sm:w-1/2 md:w-1/4 mb-6">
+          <div className="w-full sm:w-1/2 md:w-1/4 mb-6 text-center sm:text-left">
             <h3 className="text-white font-bold text-xl mb-2">Quick Links</h3>
             <ul>
               <li className="mb-2">
@@ -33,7 +31,7 @@ const Footer = () => {
           </div>
 
           {/* Column 3: Services */}
-          <div className="w-full sm:w-1/2 md:w-1/4 mb-6">
+          <div className="w-full sm:w-1/2 md:w-1/4 mb-6 text-center sm:text-left">
             <h3 className="text-white font-bold text-xl mb-2">Services</h3>
             <ul>
               <li className="mb-2">
@@ -52,9 +50,9 @@ const Footer = () => {
           </div>
 
           {/* Column 4: Social Media */}
-          <div className="w-full sm:w-1/2 md:w-1/4 mb-6">
+          <div className="w-full sm:w-1/2 md:w-1/4 mb-6 text-center sm:text-left">
             <h3 className="text-white font-bold text-xl mb-2">Follow Us</h3>
-            <div className="flex space-x-4">
+            <div className="flex justify-center sm:justify-start space-x-4">
               <a href="#" className="hover:text-white">
                 <svg
                   className="w-6 h-6"

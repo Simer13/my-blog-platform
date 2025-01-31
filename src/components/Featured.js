@@ -18,33 +18,40 @@ const blogPosts = [
 ]
 
 const BlogPostCard = ({ post }) => (
-    <Card className="flex flex-row items-center transition-transform duration-300 hover:scale-105 hover:shadow-lg w-full max-w-[600px]">
-      <div className="relative w-[300px] h-[200px]">
-        <Image
-          src={post.imageUrl}
-          alt={post.title}
-          layout="fill"
-          objectFit="cover"
-          className="rounded-l-lg"
-        />
-        
+  <Card className="flex flex-col sm:flex-row items-center transition-transform duration-300 hover:scale-105 hover:shadow-lg w-full max-w-[600px]">
+    <div className="relative w-full sm:w-[300px] h-[200px]">
+      <Image
+        src={post.imageUrl}
+        alt={post.title}
+        layout="fill"
+        objectFit="cover"
+        className="rounded-lg sm:rounded-l-lg"
+      />
+    </div>
+    <CardContent className="flex-grow p-4">
+      <h3 className="font-semibold text-lg mb-2 line-clamp-2">{post.title}</h3>
+      <div className="flex items-center text-sm text-muted-foreground">
+        <CalendarIcon className="mr-1 h-4 w-4" />
+        <span className="mr-3">{post.date}</span>
+        <ClockIcon className="mr-1 h-4 w-4" />
+        <span>{post.readTime}</span>
       </div>
-      <CardContent className="flex-grow p-4">
-        <h3 className="font-semibold text-lg mb-2 line-clamp-2">{post.title}</h3>
-        <div className="flex items-center text-sm text-muted-foreground">
-          <CalendarIcon className="mr-1 h-4 w-4" />
-          <span className="mr-3">{post.date}</span>
-          <ClockIcon className="mr-1 h-4 w-4" />
-          <span>{post.readTime}</span>
-        </div>
-      </CardContent>
-      <CardFooter className="p-4 pt-0">
-        <a href="#" className="text-primary hover:underline">Read more</a>
-      </CardFooter>
-    </Card>
-  );
-  
-const ScrollingRow = ({ posts, direction }) => {
+    </CardContent>
+    <CardFooter className="p-4 pt-0">
+      <a href="#" className="text-primary hover:underline">Read more</a>
+    </CardFooter>
+  </Card>
+)
+
+const ScrollingRowMobile = ({ posts }) => (
+  <div className="flex overflow-x-scroll space-x-6 py-6">
+    {posts.map(post => (
+      <BlogPostCard key={post.id} post={post} />
+    ))}
+  </div>
+)
+
+const ScrollingRowDesktop = ({ posts, direction }) => {
   const scrollRef = useRef(null)
   const isInView = useInView(scrollRef, { once: false, margin: "-20%" })
   const controls = useAnimation()
@@ -72,7 +79,6 @@ const ScrollingRow = ({ posts, direction }) => {
       <motion.div
         className="flex space-x-6"
         animate={controls}
-        style={{ x: direction === 1 ? "0%" : "0%" }}
       >
         {[...posts, ...posts].map((post, index) => (
           <BlogPostCard key={`${post.id}-${index}`} post={post} />
@@ -89,9 +95,12 @@ export default function FeaturedBlogPosts() {
         <h2 className="text-3xl font-bold text-center mb-8 text-gray-800 dark:text-gray-200">
           Featured Blog Posts
         </h2>
-        <div className="space-y-8">
-          <ScrollingRow posts={blogPosts.slice(0, 4)} direction={1} />
-          <ScrollingRow posts={blogPosts.slice(4)} direction={-1} />
+        <div className="hidden sm:block space-y-8">
+          <ScrollingRowDesktop posts={blogPosts.slice(0, 4)} direction={1} />
+          <ScrollingRowDesktop posts={blogPosts.slice(4)} direction={-1} />
+        </div>
+        <div className="block sm:hidden">
+          <ScrollingRowMobile posts={blogPosts} />
         </div>
       </div>
     </section>

@@ -1,6 +1,7 @@
 "use client";
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../../../firebase/firebase';
+import { uploadToCloudinary } from '../../utils/cloudinary';
 import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { FacebookShareButton, TwitterShareButton, LinkedinShareButton } from "react-share";
@@ -10,18 +11,18 @@ const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 import "react-quill/dist/quill.snow.css";
 
 export default function Dashboard() {
-  const [content, setContent] = useState("");
+  const [content, setContent] = useState(""); // Blog content
   const [showDropdown, setShowDropdown] = useState(false); // Dropdown state
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [url, setUrl] = useState("");
-  const [title, setTitle] = useState(""); // State to hold the blog title
-  const [slug, setSlug] = useState(""); 
-  const [isClient, setIsClient] = useState(false); 
+  const [url, setUrl] = useState(""); // Current URL
+  const [title, setTitle] = useState(""); // Blog title
+  const [slug, setSlug] = useState(""); // Slug generated from title
+  const [isClient, setIsClient] = useState(false); // To check if it's client-side
+  const [toc, setToc] = useState<any[]>([]); // Table of contents state
 
   useEffect(() => {
     setIsClient(true);
-    // Set the current URL once the component is mounted (client-side only)
-    setUrl(window.location.href);
+    setUrl(window.location.href); // Set URL for social sharing
   }, []);
 
   // Handle title input change and generate slug from title
@@ -42,32 +43,53 @@ export default function Dashboard() {
 
   const handleContentChange = (value: string) => {
     setContent(value);
+    updateTableOfContents(value); // Update the ToC whenever content changes
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Function to generate Table of Contents from content
+  const updateTableOfContents = (content: string) => {
+    const regex = /<h([1-6])[^>]*>(.*?)<\/h\1>/g; // Regex to find all headings
+    const tocItems: unknown[] = [];
+    let match;
+
+    while ((match = regex.exec(content)) !== null) {
+      const level = match[1]; // Heading level (h1, h2, etc.)
+      const text = match[2]; // Heading text
+      const id = `toc-${tocItems.length + 1}`; // Unique ID for each heading
+      tocItems.push({ level, text, id });
+    }
+
+    setToc(tocItems);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setSelectedImage(URL.createObjectURL(file));
+      try {
+        const imageUrl = await uploadToCloudinary(file); // Upload to Cloudinary
+        setSelectedImage(imageUrl); // Save the returned URL
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        alert('Failed to upload image. Please try again.');
+      }
     }
   };
 
-  // Handle the Publish action and save data to Firebase
   const handlePublish = async () => {
     try {
       const blogData = {
         title,
         slug,
         content,
-        coverImage: selectedImage,
+        coverImage: selectedImage, // Use Cloudinary URL
         url,
         createdAt: new Date(),
       };
-      
-      // Save the blog data to Firebase Firestore
+
+      // Save the blog data to Firestore
       const docRef = await addDoc(collection(db, "posts"), blogData);
       console.log("Blog written and saved with ID: ", docRef.id);
-      window.location.reload();
-      // Optional: You can redirect or give feedback to the user after saving the data
+
       alert("Blog published successfully!");
       setTitle("");
       setSlug("");
@@ -76,6 +98,7 @@ export default function Dashboard() {
 
     } catch (e) {
       console.error("Error adding document: ", e);
+      alert("Failed to publish the blog. Please try again.");
     }
   };
 
@@ -83,18 +106,24 @@ export default function Dashboard() {
     return null; // Don't render anything if not on the client side
   }
 
-  
-
   return (
-    <div className="bg-white text-black min-h-screen flex">
-      {/* Sidebar for Table of Contents */}
-      <aside className="w-1/4 bg-[#f5f5f5] p-8">
+    <div className="bg-white text-black min-h-screen flex flex-col md:flex-row">
+      {/* Sidebar for Real-Time Table of Contents */}
+      <aside className="w-full md:w-1/4 bg-[#f5f5f5] p-8 md:p-4 sticky top-0">
         <h2 className="text-2xl font-bold mb-4">Table of Contents</h2>
         <ul className="space-y-4">
-          <li className="text-sm hover:underline cursor-pointer">Introduction</li>
-          <li className="text-sm hover:underline cursor-pointer">Blog Formatting Tips</li>
-          <li className="text-sm hover:underline cursor-pointer">How to Add Media</li>
-          <li className="text-sm hover:underline cursor-pointer">Finalizing Your Blog</li>
+          {toc.map((item, index) => (
+            <li key={index}>
+              <a
+                href={`#${item.id}`}
+                className={`text-sm cursor-pointer ${
+                  item.level === "1" ? "font-semibold" : "font-normal"
+                } hover:underline`}
+              >
+                {item.text}
+              </a>
+            </li>
+          ))}
         </ul>
 
         {/* Social Media Share Buttons */}
@@ -115,7 +144,7 @@ export default function Dashboard() {
       </aside>
 
       {/* Main Writing Area */}
-      <main className="w-3/4 p-8 flex flex-col">
+      <main className="w-full md:w-3/4 p-8 flex flex-col">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Create New Blog</h1>
 
