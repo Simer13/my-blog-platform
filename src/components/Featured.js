@@ -5,16 +5,17 @@ import { motion, useAnimation, useInView } from "framer-motion"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { CalendarIcon, ClockIcon } from "lucide-react"
 import Image from "next/image"
+import Link from 'next/link';
 
 const blogPosts = [
-  { id: 1, title: "10 Essential VS Code Extensions for Web Developers", category: "Tools", date: "May 15, 2023", readTime: "5 min", imageUrl: "https://images.unsplash.com/photo-1505330622279-bf7d7fc918f4?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YmxvZ3xlbnwwfHwwfHx8MA%3D%3D" },
-  { id: 2, title: "The Future of React: What's Coming in React 19", category: "React", date: "May 18, 2023", readTime: "7 min", imageUrl: "https://plus.unsplash.com/premium_photo-1683211783920-8c66ab120c09?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8YmxvZ3xlbnwwfHwwfHx8MA%3D%3D" },
-  { id: 3, title: "Mastering CSS Grid: Advanced Layout Techniques", category: "CSS", date: "May 20, 2023", readTime: "6 min", imageUrl: "https://plus.unsplash.com/premium_photo-1683309565422-77818a287060?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8YmxvZ3xlbnwwfHwwfHx8MA%3D%3D" },
-  { id: 4, title: "Building Scalable APIs with GraphQL and Node.js", category: "Backend", date: "May 22, 2023", readTime: "8 min", imageUrl: "https://images.unsplash.com/photo-1514782831304-632d84503f6f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjJ8fGJsb2d8ZW58MHx8MHx8fDA%3D" },
-  { id: 5, title: "Optimizing Web Performance: A Deep Dive", category: "Performance", date: "May 25, 2023", readTime: "10 min", imageUrl: "https://images.unsplash.com/photo-1501556466850-7c9fa1fccb4c?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NDJ8fGJsb2d8ZW58MHx8MHx8fDA%3D" },
-  { id: 6, title: "The Art of Clean Code: Best Practices for Maintainability", category: "Best Practices", date: "May 28, 2023", readTime: "6 min", imageUrl: "https://images.unsplash.com/photo-1507120410856-1f35574c3b45?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NTB8fGJsb2d8ZW58MHx8MHx8fDA%3D" },
-  { id: 7, title: "Exploring the JAMstack: Modern Web Development", category: "Web Dev", date: "June 1, 2023", readTime: "7 min", imageUrl: "https://plus.unsplash.com/premium_photo-1710361778821-93aeb8787ccd?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NTd8fGJsb2d8ZW58MHx8MHx8fDA%3D" },
-  { id: 8, title: "Machine Learning in JavaScript with TensorFlow.js", category: "AI", date: "June 3, 2023", readTime: "9 min", imageUrl: "https://plus.unsplash.com/premium_photo-1676998930667-cab56c8fa602?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NjV8fGJsb2d8ZW58MHx8MHx8fDA%3D" },
+  { id: 4, title: "10 Essential VS Code Extensions for Web Developers", category: "Tools", date: "May 15, 2023", readTime: "5 min", imageUrl: "https://images.unsplash.com/photo-1505330622279-bf7d7fc918f4?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YmxvZ3xlbnwwfHwwfHx8MA%3D%3D" },
+  { id: 5, title: "The Future of React: What's Coming in React 19", category: "React", date: "May 18, 2023", readTime: "7 min", imageUrl: "https://plus.unsplash.com/premium_photo-1683211783920-8c66ab120c09?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8YmxvZ3xlbnwwfHwwfHx8MA%3D%3D" },
+  { id: 6, title: "Mastering CSS Grid: Advanced Layout Techniques", category: "CSS", date: "May 20, 2023", readTime: "6 min", imageUrl: "https://plus.unsplash.com/premium_photo-1683309565422-77818a287060?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8YmxvZ3xlbnwwfHwwfHx8MA%3D%3D" },
+  { id: 7, title: "Building Scalable APIs with GraphQL and Node.js", category: "Backend", date: "May 22, 2023", readTime: "8 min", imageUrl: "https://images.unsplash.com/photo-1514782831304-632d84503f6f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjJ8fGJsb2d8ZW58MHx8MHx8fDA%3D" },
+  { id: 8, title: "Optimizing Web Performance: A Deep Dive", category: "Performance", date: "May 25, 2023", readTime: "10 min", imageUrl: "https://images.unsplash.com/photo-1501556466850-7c9fa1fccb4c?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NDJ8fGJsb2d8ZW58MHx8MHx8fDA%3D" },
+  { id: 9, title: "The Art of Clean Code: Best Practices for Maintainability", category: "Best Practices", date: "May 28, 2023", readTime: "6 min", imageUrl: "https://images.unsplash.com/photo-1507120410856-1f35574c3b45?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NTB8fGJsb2d8ZW58MHx8MHx8fDA%3D" },
+  { id: 10, title: "Exploring the JAMstack: Modern Web Development", category: "Web Dev", date: "June 1, 2023", readTime: "7 min", imageUrl: "https://plus.unsplash.com/premium_photo-1710361778821-93aeb8787ccd?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NTd8fGJsb2d8ZW58MHx8MHx8fDA%3D" },
+  { id: 11, title: "Machine Learning in JavaScript with TensorFlow.js", category: "AI", date: "June 3, 2023", readTime: "9 min", imageUrl: "https://plus.unsplash.com/premium_photo-1676998930667-cab56c8fa602?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NjV8fGJsb2d8ZW58MHx8MHx8fDA%3D" },
 ]
 
 const BlogPostCard = ({ post }) => (
@@ -38,7 +39,9 @@ const BlogPostCard = ({ post }) => (
       </div>
     </CardContent>
     <CardFooter className="p-4 pt-0">
-      <a href="#" className="text-primary hover:underline">Read more</a>
+    <Link href={`/blogPosts/${post.id}`} className="text-primary hover:underline">
+    Read more
+  </Link>
     </CardFooter>
   </Card>
 )

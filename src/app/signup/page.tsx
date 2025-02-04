@@ -1,8 +1,8 @@
 "use client";
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth, db } from '../../../firebase/firebase'; // Make sure you export db from firebase config
+import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, GithubAuthProvider } from 'firebase/auth';
+import { auth, db } from '../../../firebase/firebase'; 
 import { setDoc, doc } from 'firebase/firestore';
 
 export default function SignUp() {
@@ -19,21 +19,36 @@ export default function SignUp() {
     setLoading(true);
 
     try {
-      // Create user with Firebase Authentication
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-
-      // Store additional user data in Firestore
       const user = userCredential.user;
       await setDoc(doc(db, 'users', user.uid), {
         name: name,
         email: email,
         createdAt: new Date(),
       });
-
-      // Redirect user to the dashboard or home page after successful sign up
-      router.push('/dashboard');  // Replace '/dashboard' with your desired route
+      router.push('/dashboard');
     } catch (err: unknown) {
       setError((err as Error).message || 'Sign up failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleOAuthSignIn = async (provider: any) => {
+    setError(null);
+    setLoading(true);
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      await setDoc(doc(db, 'users', user.uid), {
+        name: user.displayName || 'No Name',
+        email: user.email,
+        createdAt: new Date(),
+      }, { merge: true });
+      router.push('/blogadmindashboard');
+    } catch (err: unknown) {
+      setError((err as Error).message || 'Authentication failed');
     } finally {
       setLoading(false);
     }
@@ -47,55 +62,18 @@ export default function SignUp() {
         <form onSubmit={handleSignUp}>
           <div className="mb-4">
             <label htmlFor="name" className="text-sm text-gray-300">Full Name</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full p-3 mt-2 text-white bg-gray-800 rounded-md focus:ring-2 focus:ring-blue-600"
-              placeholder="Enter your full name"
-              required
-            />
+            <input type="text" id="name" name="name" value={name} onChange={(e) => setName(e.target.value)} className="w-full p-3 mt-2 text-white bg-gray-800 rounded-md focus:ring-2 focus:ring-blue-600" placeholder="Enter your full name" required />
           </div>
-
           <div className="mb-4">
             <label htmlFor="email" className="text-sm text-gray-300">Email Address</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-3 mt-2 text-white bg-gray-800 rounded-md focus:ring-2 focus:ring-blue-600"
-              placeholder="Enter your email"
-              required
-            />
+            <input type="email" id="email" name="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-3 mt-2 text-white bg-gray-800 rounded-md focus:ring-2 focus:ring-blue-600" placeholder="Enter your email" required />
           </div>
-
           <div className="mb-6">
             <label htmlFor="password" className="text-sm text-gray-300">Password</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-3 mt-2 text-white bg-gray-800 rounded-md focus:ring-2 focus:ring-blue-600"
-              placeholder="Enter your password"
-              required
-            />
+            <input type="password" id="password" name="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-3 mt-2 text-white bg-gray-800 rounded-md focus:ring-2 focus:ring-blue-600" placeholder="Enter your password" required />
           </div>
-
           {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-
-          <button
-            type="submit"
-            className="w-full py-3 mb-4 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500"
-            disabled={loading}
-          >
-            {loading ? 'Signing Up...' : 'Sign Up'}
-          </button>
+          <button type="submit" className="w-full py-3 mb-4 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500" disabled={loading}>{loading ? 'Signing Up...' : 'Sign Up'}</button>
         </form>
 
         <div className="flex items-center justify-between mb-6">
@@ -105,19 +83,11 @@ export default function SignUp() {
         </div>
 
         <div className="flex justify-center flex-wrap space-x-4 space-y-4 sm:space-y-0 mb-6">
-          {/* Optional Google or GitHub buttons */}
-          <button className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 w-full sm:w-auto">
-            Google
-          </button>
-          <button className="flex items-center px-6 py-3 bg-gray-800 text-white rounded-md hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 w-full sm:w-auto">
-            Github
-          </button>
+          <button onClick={() => handleOAuthSignIn(new GoogleAuthProvider())} className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 w-full sm:w-auto">Google</button>
+          <button onClick={() => handleOAuthSignIn(new GithubAuthProvider())} className="flex items-center px-6 py-3 bg-gray-800 text-white rounded-md hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 w-full sm:w-auto">Github</button>
         </div>
 
-        <p className="text-center text-sm text-gray-400">
-          Already have an account?{' '}
-          <a href="/login" className="text-blue-500 hover:underline">Log in</a>
-        </p>
+        <p className="text-center text-sm text-gray-400">Already have an account?{' '}<a href="/login" className="text-blue-500 hover:underline">Log in</a></p>
       </div>
     </div>
   );
