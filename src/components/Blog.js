@@ -40,7 +40,9 @@ const Blog = () => {
     <div className="bg-white py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8 text-center">
         <div className="flex flex-col items-end mx-auto max-w-3xl lg:mx-0 text-center ml-12">
-          <h2 className="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl text-center">From the Blog</h2>
+          <h2 className="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl text-center">
+            From the Blog
+          </h2>
           <p className="mt-2 text-lg leading-10 text-gray-700 italic text-center">
             Learn how to grow your business with our expert advice.
           </p>
@@ -52,7 +54,7 @@ const Blog = () => {
                 <time dateTime={blog.date} className="text-gray-500">
                   {blog.date}
                 </time>
-                <Link href={`/blogs/${blog.id}`}>
+                <Link href={`/blogposts/${blog.id}`}>
                   <span className="relative z-10 rounded-full bg-gray-50 px-3 py-1.5 font-medium text-blue-600 hover:bg-blue-100">
                     Marketing
                   </span>
@@ -60,7 +62,7 @@ const Blog = () => {
               </div>
               <div className="group relative">
                 <h3 className="mt-3 text-lg font-semibold leading-6 text-gray-900 group-hover:text-blue-700">
-                  <Link href={`/blogs/${blog.id}`}>
+                  <Link href={`/blogPosts/${blog.id}`}>
                     <span className="absolute inset-0"></span>
                     {blog.title}
                   </Link>

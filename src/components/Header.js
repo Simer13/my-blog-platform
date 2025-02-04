@@ -101,7 +101,7 @@ const Header = () => {
                       Author Dashboard
                     </Link>
                     <Link
-                      href="/create-post"
+                      href="/blogPosts"
                       className="block px-4 py-2 text-sm text-gray-700"
                     >
                       Create New Posts
