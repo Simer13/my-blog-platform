@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import React, { useState, useEffect } from "react";
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, DocumentData, onSnapshot } from "firebase/firestore";
 import { db } from "../../../firebase/firebase";
 import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
@@ -15,13 +15,16 @@ const Dashboard = () => {
   const [totalComments, setTotalComments] = useState(0);
   const [activeUsers, setActiveUsers] = useState(0);
   const [recentPosts, setRecentPosts] = useState<{ id: string; title: string; views: number; comments?: number }[]>([]);
-  const [latestComments, setLatestComments] = useState([]);
+  const [latestComments, setLatestComments] = useState<DocumentData[]>([]);
 
   // Fetch data from Firebase Firestore in real-time
   useEffect(() => {
     const unsubscribePosts = onSnapshot(collection(db, "posts"), (snapshot) => {
       setTotalPosts(snapshot.size);
-      setRecentPosts(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+      setRecentPosts(snapshot.docs.map((doc) => {
+        const data = doc.data();
+        return { id: doc.id, title: data.title, views: data.views, comments: data.comments };
+      }));
     });
 
     const unsubscribeViews = onSnapshot(collection(db, "views"), (snapshot) => {
