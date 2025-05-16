@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
+
 import React, { useState, useEffect } from "react";
 import { collection, DocumentData, onSnapshot } from "firebase/firestore";
 import { db } from "../../../firebase/firebase";
@@ -75,7 +76,7 @@ const Dashboard = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-900 text-white">
-      {/* Sidebar */}
+      
       <div className="w-64 bg-gray-800 p-5">
         <h2 className="text-xl font-bold mb-6">Admin Panel</h2>
         <ul>
@@ -89,7 +90,7 @@ const Dashboard = () => {
         </ul>
       </div>
 
-      {/* Main Dashboard */}
+      
       <div className="flex-1 p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Dashboard</h1>
@@ -99,7 +100,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Stats */}
+       
         <div className="grid grid-cols-4 gap-6 mb-6">
           <div className="bg-gray-800 p-4 rounded-lg">
             <h3 className="text-lg">Total Posts</h3>
@@ -119,7 +120,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Charts */}
+       
         <div className="grid grid-cols-2 gap-6">
           <div className="bg-gray-800 p-4 rounded-lg">
             <h3 className="text-lg mb-3">Post Views</h3>
