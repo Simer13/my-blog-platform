@@ -2,56 +2,116 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { collection, DocumentData, onSnapshot } from "firebase/firestore";
-import { db } from "../../../firebase/firebase";
+import {
+  collection,
+  DocumentData,
+  onSnapshot,
+  query,
+  where,
+} from "firebase/firestore";
+import { db, auth } from "../../../firebase/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 import { Bar } from "react-chartjs-2";
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
-import { Home, LayoutDashboard, Edit, BookOpen, MessageSquare, Users, PieChart, Settings, Menu, Bell, LogOut } from "lucide-react";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import {
+  Home,
+  Edit,
+  BookOpen,
+  MessageSquare,
+  Users,
+  PieChart,
+  Settings,
+  Menu,
+  Bell,
+} from "lucide-react";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const Dashboard = () => {
   const [totalPosts, setTotalPosts] = useState(0);
   const [totalViews, setTotalViews] = useState(0);
   const [totalComments, setTotalComments] = useState(0);
   const [activeUsers, setActiveUsers] = useState(0);
-  const [recentPosts, setRecentPosts] = useState<{ id: string; title: string; views: number; comments?: number }[]>([]);
+  const [recentPosts, setRecentPosts] = useState<
+    { id: string; title: string; views: number; comments?: number }[]
+  >([]);
   const [latestComments, setLatestComments] = useState<DocumentData[]>([]);
 
-  // Fetch data from Firebase Firestore in real-time
   useEffect(() => {
-    const unsubscribePosts = onSnapshot(collection(db, "posts"), (snapshot) => {
-      setTotalPosts(snapshot.size);
-      setRecentPosts(snapshot.docs.map((doc) => {
-        const data = doc.data();
-        return { id: doc.id, title: data.title, views: data.views, comments: data.comments };
-      }));
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      if (!user) return;
+
+      const userUID = user.uid;
+
+      // Filter posts only for the current user
+      const postsQuery = query(
+        collection(db, "posts"),
+        where("uid", "==", userUID)
+      );
+
+      const unsubscribePosts = onSnapshot(postsQuery, (snapshot) => {
+        setTotalPosts(snapshot.size);
+        setRecentPosts(
+          snapshot.docs.map((doc) => {
+            const data = doc.data();
+            return {
+              id: doc.id,
+              title: data.title,
+              views: data.views,
+              comments: data.comments,
+            };
+          })
+        );
+      });
+
+      // Optional: Filter views if needed, otherwise keep global
+      const unsubscribeViews = onSnapshot(collection(db, "views"), (snapshot) => {
+        let total = 0;
+        snapshot.docs.forEach((doc) => {
+          total += doc.data().count;
+        });
+        setTotalViews(total);
+      });
+
+      // Optional: Filter comments for user if needed
+      const unsubscribeComments = onSnapshot(
+        collection(db, "comments"),
+        (snapshot) => {
+          setTotalComments(snapshot.size);
+          setLatestComments(snapshot.docs.map((doc) => doc.data()));
+        }
+      );
+
+      const unsubscribeUsers = onSnapshot(collection(db, "users"), (snapshot) => {
+        setActiveUsers(snapshot.size);
+      });
+
+      return () => {
+        unsubscribePosts();
+        unsubscribeViews();
+        unsubscribeComments();
+        unsubscribeUsers();
+      };
     });
 
-    const unsubscribeViews = onSnapshot(collection(db, "views"), (snapshot) => {
-      let total = 0;
-      snapshot.docs.forEach((doc) => (total += doc.data().count));
-      setTotalViews(total);
-    });
-
-    const unsubscribeComments = onSnapshot(collection(db, "comments"), (snapshot) => {
-      setTotalComments(snapshot.size);
-      setLatestComments(snapshot.docs.map((doc) => doc.data()));
-    });
-
-    const unsubscribeUsers = onSnapshot(collection(db, "users"), (snapshot) => {
-      setActiveUsers(snapshot.size);
-    });
-
-    return () => {
-      unsubscribePosts();
-      unsubscribeViews();
-      unsubscribeComments();
-      unsubscribeUsers();
-    };
+    return () => unsubscribeAuth();
   }, []);
 
-  // Chart Data
   const viewsChartData = {
     labels: recentPosts.map((post) => post.title),
     datasets: [
@@ -76,21 +136,33 @@ const Dashboard = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-900 text-white">
-      
       <div className="w-64 bg-gray-800 p-5">
         <h2 className="text-xl font-bold mb-6">Admin Panel</h2>
         <ul>
-          <li className="mb-3 flex items-center gap-2"><Home size={18} /> Dashboard</li>
-          <li className="mb-3 flex items-center gap-2"><Edit size={18} /> Manage Posts</li>
-          <li className="mb-3 flex items-center gap-2"><BookOpen size={18} /> Categories</li>
-          <li className="mb-3 flex items-center gap-2"><MessageSquare size={18} /> Comments</li>
-          <li className="mb-3 flex items-center gap-2"><Users size={18} /> Users</li>
-          <li className="mb-3 flex items-center gap-2"><PieChart size={18} /> Analytics</li>
-          <li className="mb-3 flex items-center gap-2"><Settings size={18} /> Settings</li>
+          <li className="mb-3 flex items-center gap-2">
+            <Home size={18} /> Dashboard
+          </li>
+          <li className="mb-3 flex items-center gap-2">
+            <Edit size={18} /> Manage Posts
+          </li>
+          <li className="mb-3 flex items-center gap-2">
+            <BookOpen size={18} /> Categories
+          </li>
+          <li className="mb-3 flex items-center gap-2">
+            <MessageSquare size={18} /> Comments
+          </li>
+          <li className="mb-3 flex items-center gap-2">
+            <Users size={18} /> Users
+          </li>
+          <li className="mb-3 flex items-center gap-2">
+            <PieChart size={18} /> Analytics
+          </li>
+          <li className="mb-3 flex items-center gap-2">
+            <Settings size={18} /> Settings
+          </li>
         </ul>
       </div>
 
-      
       <div className="flex-1 p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Dashboard</h1>
@@ -100,7 +172,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-       
         <div className="grid grid-cols-4 gap-6 mb-6">
           <div className="bg-gray-800 p-4 rounded-lg">
             <h3 className="text-lg">Total Posts</h3>
@@ -120,7 +191,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-       
         <div className="grid grid-cols-2 gap-6">
           <div className="bg-gray-800 p-4 rounded-lg">
             <h3 className="text-lg mb-3">Post Views</h3>

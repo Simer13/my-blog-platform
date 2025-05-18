@@ -1,5 +1,6 @@
 "use client";
 import { collection, addDoc } from 'firebase/firestore';
+import { getAuth } from "firebase/auth";
 import { db } from '../../../firebase/firebase';
 import { uploadToCloudinary } from '../../utils/cloudinary';
 import React, { useState, useEffect } from "react";
@@ -83,31 +84,39 @@ export default function Dashboard() {
   };
 
   const handlePublish = async () => {
-    try {
-      const blogData = {
-        title,
-        slug,
-        content,
-        coverImage: selectedImage, // Use Cloudinary URL
-        url,
-        createdAt: new Date(),
-      };
-
-      // Save the blog data to Firestore
-      const docRef = await addDoc(collection(db, "posts"), blogData);
-      console.log("Blog written and saved with ID: ", docRef.id);
-
-      alert("Blog published successfully!");
-      setTitle("");
-      setSlug("");
-      setContent("");
-      setSelectedImage(null);
-
-    } catch (e) {
-      console.error("Error adding document: ", e);
-      alert("Failed to publish the blog. Please try again.");
+  try {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (!user) {
+      alert("You must be logged in to publish a blog");
+      return;
     }
-  };
+
+    const blogData = {
+      title,
+      slug,
+      content,
+      coverImage: selectedImage,
+      url,
+      uid: user.uid,  // <--- add UID here
+      createdAt: new Date(),
+    };
+
+    const docRef = await addDoc(collection(db, "posts"), blogData);
+    console.log("Blog written and saved with ID: ", docRef.id);
+
+    alert("Blog published successfully!");
+    setTitle("");
+    setSlug("");
+    setContent("");
+    setSelectedImage(null);
+
+  } catch (e) {
+    console.error("Error adding document: ", e);
+    alert("Failed to publish the blog. Please try again.");
+  }
+};
+
 
   if (!isClient) {
     return null; // Don't render anything if not on the client side

@@ -26,7 +26,7 @@ export default function SignUp() {
         email: email,
         createdAt: new Date(),
       });
-      router.push('/dashboard');
+      router.push('/login');
     } catch (err: unknown) {
       setError((err as Error).message || 'Sign up failed');
     } finally {
