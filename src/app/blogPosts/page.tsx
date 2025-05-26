@@ -98,7 +98,7 @@ export default function Dashboard() {
       content,
       coverImage: selectedImage,
       url,
-      uid: user.uid,  // <--- add UID here
+      uid: user.uid,  
       createdAt: new Date(),
     };
 
