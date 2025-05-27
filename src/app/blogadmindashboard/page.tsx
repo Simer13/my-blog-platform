@@ -32,6 +32,7 @@ import {
   Menu,
   Bell,
 } from "lucide-react";
+import { BrowserRouter as Router, Link } from "react-router-dom"; // Import Link and Router
 
 ChartJS.register(
   CategoryScale,
@@ -135,74 +136,77 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-900 text-white">
-      <div className="w-64 bg-gray-800 p-5">
-        <h2 className="text-xl font-bold mb-6">Admin Panel</h2>
-        <ul>
-          <li className="mb-3 flex items-center gap-2">
-            <Home size={18} /> Dashboard
-          </li>
-          <li className="mb-3 flex items-center gap-2">
-            <Edit size={18} /> Manage Posts
-          </li>
-          <li className="mb-3 flex items-center gap-2">
-            <BookOpen size={18} /> Categories
-          </li>
-          <li className="mb-3 flex items-center gap-2">
-            <MessageSquare size={18} /> Comments
-          </li>
-          <li className="mb-3 flex items-center gap-2">
-            <Users size={18} /> Users
-          </li>
-          <li className="mb-3 flex items-center gap-2">
-            <PieChart size={18} /> Analytics
-          </li>
-          <li className="mb-3 flex items-center gap-2">
-            <Settings size={18} /> Settings
-          </li>
-        </ul>
-      </div>
-
-      <div className="flex-1 p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Dashboard</h1>
-          <div className="flex gap-4">
-            <Bell size={24} />
-            <Menu size={24} />
-          </div>
+    <Router> {/* Wrap your component with Router */}
+      <div className="flex min-h-screen bg-gray-900 text-white">
+        <div className="w-64 bg-gray-800 p-5">
+          <h2 className="text-xl font-bold mb-6">Admin Panel</h2>
+          <ul>
+            {/* Use Link component for navigation */}
+            <li className="mb-3">
+              <Link to="/" className="flex items-center gap-2 hover:text-blue-400 transition-colors">
+                <Home size={18} /> Home
+              </Link>
+            </li>
+            <li className="mb-3">
+              <Link to="/blogPosts" className="flex items-center gap-2 hover:text-blue-400 transition-colors">
+                <Edit size={18} /> Create Post
+              </Link>
+            </li>
+            <li className="mb-3">
+              <Link to="/delete" className="flex items-center gap-2 hover:text-blue-400 transition-colors">
+                <BookOpen size={18} /> Categories
+              </Link>
+            </li>
+            <li className="mb-3">
+              <Link to="/subscriptions" className="flex items-center gap-2 hover:text-blue-400 transition-colors">
+                <MessageSquare size={18} /> Subscriptions
+              </Link>
+            </li>
+    
+          </ul>
         </div>
 
-        <div className="grid grid-cols-4 gap-6 mb-6">
-          <div className="bg-gray-800 p-4 rounded-lg">
-            <h3 className="text-lg">Total Posts</h3>
-            <p className="text-2xl font-bold">{totalPosts}</p>
+        <div className="flex-1 p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold">Dashboard</h1>
+            <div className="flex gap-4">
+              <Bell size={24} />
+              <Menu size={24} />
+            </div>
           </div>
-          <div className="bg-gray-800 p-4 rounded-lg">
-            <h3 className="text-lg">Total Views</h3>
-            <p className="text-2xl font-bold">{totalViews}</p>
-          </div>
-          <div className="bg-gray-800 p-4 rounded-lg">
-            <h3 className="text-lg">Total Comments</h3>
-            <p className="text-2xl font-bold">{totalComments}</p>
-          </div>
-          <div className="bg-gray-800 p-4 rounded-lg">
-            <h3 className="text-lg">Active Users</h3>
-            <p className="text-2xl font-bold">{activeUsers}</p>
-          </div>
-        </div>
 
-        <div className="grid grid-cols-2 gap-6">
-          <div className="bg-gray-800 p-4 rounded-lg">
-            <h3 className="text-lg mb-3">Post Views</h3>
-            <Bar data={viewsChartData} />
+          <div className="grid grid-cols-4 gap-6 mb-6">
+            <div className="bg-gray-800 p-4 rounded-lg">
+              <h3 className="text-lg">Total Posts</h3>
+              <p className="text-2xl font-bold">{totalPosts}</p>
+            </div>
+            <div className="bg-gray-800 p-4 rounded-lg">
+              <h3 className="text-lg">Total Views</h3>
+              <p className="text-2xl font-bold">{totalViews}</p>
+            </div>
+            <div className="bg-gray-800 p-4 rounded-lg">
+              <h3 className="text-lg">Total Comments</h3>
+              <p className="text-2xl font-bold">{totalComments}</p>
+            </div>
+            <div className="bg-gray-800 p-4 rounded-lg">
+              <h3 className="text-lg">Active Users</h3>
+              <p className="text-2xl font-bold">{activeUsers}</p>
+            </div>
           </div>
-          <div className="bg-gray-800 p-4 rounded-lg">
-            <h3 className="text-lg mb-3">Comments per Post</h3>
+
+          <div className="grid grid-cols-2 gap-6">
+            <div className="bg-gray-800 p-4 rounded-lg">
+              <h3 className="text-lg mb-3">Post Views</h3>
+              <Bar data={viewsChartData} />
+            </div>
+            <div className="bg-gray-800 p-4 rounded-lg">
+              <h3 className="text-lg mb-3">Comments per Post</h3>
             <Bar data={commentsChartData} />
           </div>
         </div>
       </div>
     </div>
+    </Router>
   );
 };
 

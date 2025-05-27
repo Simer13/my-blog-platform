@@ -1,26 +1,202 @@
-import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CheckCircle, Lock, Trophy, Crown, Diamond, Star, Users, ThumbsUp, MessageSquare } from "lucide-react"
+// Import necessary Firebase modules
+"use client"
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { collection, query, where, onSnapshot, doc } from "firebase/firestore";
+import { db } from '../../../firebase/firebase'; // Assuming your firebase.js is here
+
+import React, { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CheckCircle, Lock, Trophy, Crown, Diamond, Star, Users, ThumbsUp, MessageSquare } from "lucide-react";
 
 export default function SubscriptionPage() {
-  // Mock user data - in a real app, this would come from your database
-  const userData = {
-    currentTier: "silver",
-    blogsWritten: 12,
-    totalViews: 2500,
-    totalLikes: 180,
-    totalComments: 45,
-    progress: {
-      blogs: { current: 12, next: 25 },
-      views: { current: 2500, next: 5000 },
-      likes: { current: 180, next: 300 },
-      comments: { current: 45, next: 100 },
-    },
+  // State for real user data
+  // Removed unused currentUid state
+  const [blogsWritten, setBlogsWritten] = useState(0);
+  const [totalViews, setTotalViews] = useState(0);
+  const [totalLikes, setTotalLikes] = useState(0);
+  const [totalComments, setTotalComments] = useState(0);
+  const [currentTierAchievement, setCurrentTierAchievement] = useState("basic"); // Tier achieved by content
+  const [userPaidSubscription, setUserPaidSubscription] = useState<string | null>(null); // Tier user is currently paying for (e.g., "gold", "none")
+
+  // Define tier requirements for content achievement
+  const tierRequirements = {
+    basic: { blogs: 0, views: 0, likes: 0, comments: 0 },
+    silver: { blogs: 10, views: 1000, likes: 50, comments: 50 }, // Silver requirements corrected: just blogs OR views
+    gold: { blogs: 25, views: 5000, likes: 300, comments: 0 },
+    platinum: { blogs: 50, views: 15000, likes: 1000, comments: 250 },
+    diamond: { blogs: 100, views: 50000, likes: 5000, comments: 1000 },
+  };
+
+  // Helper function to get the index of a tier name in the tiersOrder array
+  const getTierIndex = (tierName: string) => {
+    const tiersOrder = ["basic", "silver", "gold", "platinum", "diamond"];
+    const index = tiersOrder.indexOf(tierName.toLowerCase());
+    return index !== -1 ? index : -1; // Return -1 if not found (e.g., "none" for userPaidSubscription)
+  };
+
+  // Helper function to determine the highest tier achieved by content stats
+  const determineContentAchievementTier = (
+    numBlogs: number,
+    numViews: number,
+    numLikes: number,
+    numComments: number
+  ) => {
+    let tier = "basic";
+
+    if (
+      (numBlogs >= tierRequirements.diamond.blogs) ||
+      (numViews >= tierRequirements.diamond.views &&
+        numLikes >= tierRequirements.diamond.likes &&
+        numComments >= tierRequirements.diamond.comments)
+    ) {
+      tier = "diamond";
+    } else if (
+      (numBlogs >= tierRequirements.platinum.blogs) ||
+      (numViews >= tierRequirements.platinum.views &&
+        numLikes >= tierRequirements.platinum.likes &&
+        numComments >= tierRequirements.platinum.comments)
+    ) {
+      tier = "platinum";
+    } else if (
+      (numBlogs >= tierRequirements.gold.blogs) ||
+      (numViews >= tierRequirements.gold.views &&
+        numLikes >= tierRequirements.gold.likes &&
+        numComments >= tierRequirements.gold.comments)
+    ) {
+      tier = "gold";
+    } else if (
+      (numBlogs >= tierRequirements.silver.blogs) ||
+      (numViews >= tierRequirements.silver.views)
+    ) {
+      tier = "silver";
+    }
+
+    return tier;
+  };
+
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // setCurrentUid(user.uid); // Removed unused currentUid
+
+        // Listener for user's posts data (for content achievement)
+        const postsQuery = query(
+          collection(db, "posts"),
+          where("uid", "==", user.uid)
+        );
+
+        const unsubscribePosts = onSnapshot(postsQuery, (snapshot) => {
+          const currentBlogs = snapshot.size;
+          let currentViews = 0;
+          let currentLikes = 0;
+          let currentComments = 0;
+
+          snapshot.docs.forEach((postDoc) => {
+            const data = postDoc.data();
+            currentViews += data.views || 0;
+            currentLikes += data.likes || 0; // Assuming 'likes' field exists on post document
+            currentComments += data.comments || 0; // Assuming 'comments' field exists on post document
+          });
+
+          setBlogsWritten(currentBlogs);
+          setTotalViews(currentViews);
+          setTotalLikes(currentLikes);
+          setTotalComments(currentComments);
+
+          // Update the current tier based on fetched data
+          setCurrentTierAchievement(determineContentAchievementTier(currentBlogs, currentViews, currentLikes, currentComments));
+        });
+
+        // Listener for user's subscription status from their user document
+        // Assuming you have a 'users' collection and each user has a doc with their UID
+        const userDocRef = doc(db, "users", user.uid);
+        const unsubscribeUserDoc = onSnapshot(userDocRef, (docSnap) => {
+            if (docSnap.exists()) {
+                const userData = docSnap.data();
+                // Assuming 'currentSubscriptionPlan' field holds the tier they are paying for
+                // e.g., "basic", "silver", "gold", "platinum", "diamond", or "none"
+                setUserPaidSubscription(userData.currentSubscriptionPlan || "none");
+            } else {
+                setUserPaidSubscription("none"); // User document not found, treat as no paid subscription
+            }
+        });
+
+
+        // Clean up listeners when component unmounts or user changes
+        return () => {
+            unsubscribePosts();
+            unsubscribeUserDoc();
+        };
+      } else {
+        // setCurrentUid(null); // Removed unused currentUid
+        setBlogsWritten(0);
+        setTotalViews(0);
+        setTotalLikes(0);
+        setTotalComments(0);
+        setCurrentTierAchievement("basic");
+        setUserPaidSubscription("none"); // Reset if no user is logged in
+      }
+    });
+
+    // Clean up auth listener
+    return () => unsubscribeAuth();
+  }, []); // Empty dependency array means this runs once on mount
+
+  // Determine if the user is restricted from blogging based on the new logic
+  const isBloggingRestricted = !(
+    (currentTierAchievement === "basic") || // Always allow if they are only basic by content
+    (getTierIndex(userPaidSubscription || "none") >= getTierIndex(currentTierAchievement)) // Or if they are paying for their achieved tier or higher
+  );
+
+  // Determine the current effective tier the user is "on" for display purposes
+  // This considers both achievement and payment.
+  // It's the highest tier that is currently UNLOCKED for them, either by achievement or by payment.
+  let effectiveCurrentTier = "basic";
+  const tiersOrder = ["basic", "silver", "gold", "platinum", "diamond"];
+
+  for (let i = tiersOrder.length - 1; i >= 0; i--) {
+      const tierName = tiersOrder[i];
+      if (getTierIndex(tierName) <= getTierIndex(currentTierAchievement) || getTierIndex(tierName) <= getTierIndex(userPaidSubscription || "none")) {
+          effectiveCurrentTier = tierName;
+          break;
+      }
   }
 
+
+  // This `userData` object combines actual states for UI rendering
+  const userData = {
+    currentTier: effectiveCurrentTier, // This is the tier displayed as "Current"
+    blogsWritten: blogsWritten,
+    totalViews: totalViews,
+    totalLikes: totalLikes,
+    totalComments: totalComments,
+    // Progress is based on the *next* tier from the *content achievement* perspective
+    progress: {
+      blogs: {
+        current: blogsWritten,
+        next: tierRequirements[getNextTier(currentTierAchievement) as keyof typeof tierRequirements]?.blogs || 0
+      },
+      views: {
+        current: totalViews,
+        next: tierRequirements[getNextTier(currentTierAchievement) as keyof typeof tierRequirements]?.views || 0
+      },
+      likes: {
+        current: totalLikes,
+        next: tierRequirements[getNextTier(currentTierAchievement) as keyof typeof tierRequirements]?.likes || 0
+      },
+      comments: {
+        current: totalComments,
+        next: tierRequirements[getNextTier(currentTierAchievement) as keyof typeof tierRequirements]?.comments || 0
+      },
+    },
+  };
+
+  // Define tiers data including 'unlocked' logic considering both achievement and payment
   const tiers = [
     {
       name: "Basic",
@@ -30,7 +206,7 @@ export default function SubscriptionPage() {
       requirements: "Start your blogging journey",
       benefits: ["Access to basic blogging tools", "Standard analytics", "Community support"],
       price: "Free",
-      unlocked: true,
+      unlocked: true, // Basic is always unlocked
     },
     {
       name: "Silver",
@@ -41,10 +217,8 @@ export default function SubscriptionPage() {
       benefits: ["Custom blog themes", "Enhanced analytics", "Comment moderation tools", "Monthly webinar access"],
       price: "$2.99/month",
       unlocked:
-        userData.currentTier === "silver" ||
-        userData.currentTier === "gold" ||
-        userData.currentTier === "platinum" ||
-        userData.currentTier === "diamond",
+        getTierIndex("silver") <= getTierIndex(currentTierAchievement) || // Achieved by content
+        getTierIndex("silver") <= getTierIndex(userPaidSubscription || "none"), // Unlocked by payment
     },
     {
       name: "Gold",
@@ -61,7 +235,8 @@ export default function SubscriptionPage() {
       ],
       price: "$5.99/month",
       unlocked:
-        userData.currentTier === "gold" || userData.currentTier === "platinum" || userData.currentTier === "diamond",
+        getTierIndex("gold") <= getTierIndex(currentTierAchievement) ||
+        getTierIndex("gold") <= getTierIndex(userPaidSubscription || "none"),
     },
     {
       name: "Platinum",
@@ -77,7 +252,9 @@ export default function SubscriptionPage() {
         "Co-marketing opportunities",
       ],
       price: "$12.99/month",
-      unlocked: userData.currentTier === "platinum" || userData.currentTier === "diamond",
+      unlocked:
+        getTierIndex("platinum") <= getTierIndex(currentTierAchievement) ||
+        getTierIndex("platinum") <= getTierIndex(userPaidSubscription || "none"),
     },
     {
       name: "Diamond",
@@ -94,9 +271,23 @@ export default function SubscriptionPage() {
         "Custom feature development",
       ],
       price: "$24.99/month",
-      unlocked: userData.currentTier === "diamond",
+      unlocked:
+        getTierIndex("diamond") <= getTierIndex(currentTierAchievement) ||
+        getTierIndex("diamond") <= getTierIndex(userPaidSubscription || "none"),
     },
-  ]
+  ];
+
+  // Helper function to determine the next tier for progress (based on content achievement)
+  function getNextTier(currentTierName: string): string {
+    const tiersOrder = ["basic", "silver", "gold", "platinum", "diamond"];
+    const currentIndex = tiersOrder.findIndex((t) => t === currentTierName);
+
+    if (currentIndex === -1 || currentIndex === tiersOrder.length - 1) {
+      return ""; // No next tier
+    }
+    return tiersOrder[currentIndex + 1];
+  }
+
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100">
@@ -125,7 +316,11 @@ export default function SubscriptionPage() {
                 </Badge>
                 <span className="text-slate-500">Blogger</span>
               </div>
-              <p className="text-slate-600">Keep writing and engaging to unlock more benefits!</p>
+              <p className="text-slate-600">
+                {isBloggingRestricted
+                    ? `You've achieved ${currentTierAchievement.charAt(0).toUpperCase() + currentTierAchievement.slice(1)} Tier! Please subscribe to the ${currentTierAchievement.charAt(0).toUpperCase() + currentTierAchievement.slice(1)} plan or higher to continue blogging.`
+                    : "Keep writing and engaging to unlock more benefits!"}
+              </p>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full md:w-auto">
@@ -149,75 +344,80 @@ export default function SubscriptionPage() {
           </div>
 
           {/* Progress to next level */}
-          {userData.currentTier !== "diamond" && (
+          {!isBloggingRestricted && userData.currentTier !== "diamond" && ( // Hide if restricted or already Diamond
             <div className="mt-8">
               <h3 className="text-lg font-semibold mb-4">
                 Progress to{" "}
-                {userData.currentTier === "basic"
-                  ? "Silver"
-                  : userData.currentTier === "silver"
-                    ? "Gold"
-                    : userData.currentTier === "gold"
-                      ? "Platinum"
-                      : "Diamond"}
+                {getNextTier(currentTierAchievement).charAt(0).toUpperCase() + getNextTier(currentTierAchievement).slice(1)}
               </h3>
               <div className="space-y-4">
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-sm font-medium flex items-center">
-                      <span className="mr-2">Blogs Written</span>
-                    </span>
-                    <span className="text-sm font-medium">
-                      {userData.progress.blogs.current}/{userData.progress.blogs.next}
-                    </span>
+                {userData.progress.blogs.next > 0 && (
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm font-medium flex items-center">
+                        <span className="mr-2">Blogs Written</span>
+                      </span>
+                      <span className="text-sm font-medium">
+                        {userData.progress.blogs.current}/{userData.progress.blogs.next}
+                      </span>
+                    </div>
+                    <Progress
+                      value={(userData.progress.blogs.current / userData.progress.blogs.next) * 100}
+                      className="h-2"
+                    />
                   </div>
-                  <Progress
-                    value={(userData.progress.blogs.current / userData.progress.blogs.next) * 100}
-                    className="h-2"
-                  />
-                </div>
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-sm font-medium flex items-center">
-                      <Users className="h-4 w-4 mr-1" /> <span>Views</span>
-                    </span>
-                    <span className="text-sm font-medium">
-                      {userData.progress.views.current.toLocaleString()}/{userData.progress.views.next.toLocaleString()}
-                    </span>
+                )}
+
+                {userData.progress.views.next > 0 && (
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm font-medium flex items-center">
+                        <Users className="h-4 w-4 mr-1" /> <span>Views</span>
+                      </span>
+                      <span className="text-sm font-medium">
+                        {userData.progress.views.current.toLocaleString()}/{userData.progress.views.next.toLocaleString()}
+                      </span>
+                    </div>
+                    <Progress
+                      value={(userData.progress.views.current / userData.progress.views.next) * 100}
+                      className="h-2"
+                    />
                   </div>
-                  <Progress
-                    value={(userData.progress.views.current / userData.progress.views.next) * 100}
-                    className="h-2"
-                  />
-                </div>
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-sm font-medium flex items-center">
-                      <ThumbsUp className="h-4 w-4 mr-1" /> <span>Likes</span>
-                    </span>
-                    <span className="text-sm font-medium">
-                      {userData.progress.likes.current}/{userData.progress.likes.next}
-                    </span>
+                )}
+
+                {userData.progress.likes.next > 0 && (
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm font-medium flex items-center">
+                        <ThumbsUp className="h-4 w-4 mr-1" /> <span>Likes</span>
+                      </span>
+                      <span className="text-sm font-medium">
+                        {userData.progress.likes.current}/{userData.progress.likes.next}
+                      </span>
+                    </div>
+                    <Progress
+                      value={(userData.progress.likes.current / userData.progress.likes.next) * 100}
+                      className="h-2"
+                    />
                   </div>
-                  <Progress
-                    value={(userData.progress.likes.current / userData.progress.likes.next) * 100}
-                    className="h-2"
-                  />
-                </div>
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-sm font-medium flex items-center">
-                      <MessageSquare className="h-4 w-4 mr-1" /> <span>Comments</span>
-                    </span>
-                    <span className="text-sm font-medium">
-                      {userData.progress.comments.current}/{userData.progress.comments.next}
-                    </span>
+                )}
+
+                {userData.progress.comments.next > 0 && (
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm font-medium flex items-center">
+                        <MessageSquare className="h-4 w-4 mr-1" /> <span>Comments</span>
+                      </span>
+                      <span className="text-sm font-medium">
+                        {userData.progress.comments.current}/{userData.progress.comments.next}
+                      </span>
+                    </div>
+                    <Progress
+                      value={(userData.progress.comments.current / userData.progress.comments.next) * 100}
+                      className="h-2"
+                    />
                   </div>
-                  <Progress
-                    value={(userData.progress.comments.current / userData.progress.comments.next) * 100}
-                    className="h-2"
-                  />
-                </div>
+                )}
               </div>
             </div>
           )}
@@ -267,20 +467,32 @@ export default function SubscriptionPage() {
                     <CardFooter>
                       <Button
                         className="w-full"
-                        variant={tier.unlocked ? "outline" : "default"}
-                        disabled={!tier.unlocked && tier.name.toLowerCase() !== getNextTier(userData.currentTier)}
+                        variant={
+                            tier.name.toLowerCase() === userData.currentTier && !isBloggingRestricted
+                            ? "default" // Highlight current effective tier if not restricted
+                            : "outline"
+                        }
+                        disabled={
+                            tier.name.toLowerCase() === userData.currentTier || // Is the CURRENT effective tier
+                            getTierIndex(tier.name) > getTierIndex(currentTierAchievement) || // Cannot unlock future tiers by content
+                            (isBloggingRestricted && getTierIndex(tier.name) < getTierIndex(currentTierAchievement)) // Restricted & this is an already achieved tier
+                        }
                       >
-                        {tier.unlocked ? (
-                          tier.name.toLowerCase() === userData.currentTier ? (
+                        {isBloggingRestricted && getTierIndex(tier.name) === getTierIndex(currentTierAchievement) ? (
+                            // This is the tier they achieved and are restricted from
+                            "Subscribe to Continue"
+                        ) : isBloggingRestricted && getTierIndex(tier.name) < getTierIndex(currentTierAchievement) ? (
+                            // This is a tier below their achievement but they are restricted
+                            "Achieved (Blocked)"
+                        ) : tier.name.toLowerCase() === userData.currentTier ? (
                             "Current Tier"
-                          ) : (
-                            "Switch to This Tier"
-                          )
+                        ) : tier.unlocked ? (
+                            "Switch to This Tier" // Or "Subscribe"
                         ) : (
-                          <span className="flex items-center">
+                            <span className="flex items-center">
                             <Lock className="h-4 w-4 mr-2" />
-                            {tier.name.toLowerCase() === getNextTier(userData.currentTier) ? "Unlock Tier" : "Locked"}
-                          </span>
+                            {getTierIndex(tier.name) > getTierIndex(currentTierAchievement) ? "Locked" : "Unlock Tier"}
+                            </span>
                         )}
                       </Button>
                     </CardFooter>
@@ -322,20 +534,30 @@ export default function SubscriptionPage() {
                     <CardFooter>
                       <Button
                         className="w-full"
-                        variant={tier.unlocked ? "outline" : "default"}
-                        disabled={!tier.unlocked && tier.name.toLowerCase() !== getNextTier(userData.currentTier)}
+                        variant={
+                            tier.name.toLowerCase() === userData.currentTier && !isBloggingRestricted
+                            ? "default"
+                            : "outline"
+                        }
+                        disabled={
+                            tier.name.toLowerCase() === userData.currentTier ||
+                            getTierIndex(tier.name) > getTierIndex(currentTierAchievement) ||
+                            (isBloggingRestricted && getTierIndex(tier.name) < getTierIndex(currentTierAchievement))
+                        }
                       >
-                        {tier.unlocked ? (
-                          tier.name.toLowerCase() === userData.currentTier ? (
+                        {isBloggingRestricted && getTierIndex(tier.name) === getTierIndex(currentTierAchievement) ? (
+                            "Subscribe to Continue"
+                        ) : isBloggingRestricted && getTierIndex(tier.name) < getTierIndex(currentTierAchievement) ? (
+                            "Achieved (Blocked)"
+                        ) : tier.name.toLowerCase() === userData.currentTier ? (
                             "Current Tier"
-                          ) : (
+                        ) : tier.unlocked ? (
                             "Switch to This Tier"
-                          )
                         ) : (
-                          <span className="flex items-center">
+                            <span className="flex items-center">
                             <Lock className="h-4 w-4 mr-2" />
-                            {tier.name.toLowerCase() === getNextTier(userData.currentTier) ? "Unlock Tier" : "Locked"}
-                          </span>
+                            {getTierIndex(tier.name) > getTierIndex(currentTierAchievement) ? "Locked" : "Unlock Tier"}
+                            </span>
                         )}
                       </Button>
                     </CardFooter>
@@ -384,20 +606,30 @@ export default function SubscriptionPage() {
                         <td className="px-6 py-4">
                           <Button
                             size="sm"
-                            variant={tier.unlocked ? "outline" : "default"}
-                            disabled={!tier.unlocked && tier.name.toLowerCase() !== getNextTier(userData.currentTier)}
+                            variant={
+                                tier.name.toLowerCase() === userData.currentTier && !isBloggingRestricted
+                                ? "default"
+                                : "outline"
+                            }
+                            disabled={
+                                tier.name.toLowerCase() === userData.currentTier ||
+                                getTierIndex(tier.name) > getTierIndex(currentTierAchievement) ||
+                                (isBloggingRestricted && getTierIndex(tier.name) < getTierIndex(currentTierAchievement))
+                            }
                           >
-                            {tier.unlocked ? (
-                              tier.name.toLowerCase() === userData.currentTier ? (
+                            {isBloggingRestricted && getTierIndex(tier.name) === getTierIndex(currentTierAchievement) ? (
+                                "Subscribe to Continue"
+                            ) : isBloggingRestricted && getTierIndex(tier.name) < getTierIndex(currentTierAchievement) ? (
+                                "Achieved (Blocked)"
+                            ) : tier.name.toLowerCase() === userData.currentTier ? (
                                 "Current"
-                              ) : (
+                            ) : tier.unlocked ? (
                                 "Switch"
-                              )
                             ) : (
-                              <span className="flex items-center">
+                                <span className="flex items-center">
                                 <Lock className="h-4 w-4 mr-1" />
-                                {tier.name.toLowerCase() === getNextTier(userData.currentTier) ? "Unlock" : "Locked"}
-                              </span>
+                                {getTierIndex(tier.name) > getTierIndex(currentTierAchievement) ? "Locked" : "Unlock"}
+                                </span>
                             )}
                           </Button>
                         </td>
@@ -439,17 +671,16 @@ export default function SubscriptionPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-// Helper function to determine the next tier
-function getNextTier(currentTier: string): string {
-  const tiers = ["basic", "silver", "gold", "platinum", "diamond"]
-  const currentIndex = tiers.findIndex((t) => t === currentTier)
+// Helper function to determine the next tier (remains the same)
+function getNextTier(currentTierName: string): string {
+  const tiersOrder = ["basic", "silver", "gold", "platinum", "diamond"];
+  const currentIndex = tiersOrder.findIndex((t) => t === currentTierName);
 
-  if (currentIndex === -1 || currentIndex === tiers.length - 1) {
-    return ""
+  if (currentIndex === -1 || currentIndex === tiersOrder.length - 1) {
+    return ""; // No next tier
   }
-
-  return tiers[currentIndex + 1]
+  return tiersOrder[currentIndex + 1];
 }
