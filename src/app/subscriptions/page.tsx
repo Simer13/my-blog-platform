@@ -145,7 +145,7 @@ export default function SubscriptionPage() {
 
     // Clean up auth listener
     return () => unsubscribeAuth();
-  }, []); // Empty dependency array means this runs once on mount
+  }, ); // Empty dependency array means this runs once on mount
 
   // Determine if the user is restricted from blogging based on the new logic
   const isBloggingRestricted = !(
@@ -674,13 +674,3 @@ export default function SubscriptionPage() {
   );
 }
 
-// Helper function to determine the next tier (remains the same)
-function getNextTier(currentTierName: string): string {
-  const tiersOrder = ["basic", "silver", "gold", "platinum", "diamond"];
-  const currentIndex = tiersOrder.findIndex((t) => t === currentTierName);
-
-  if (currentIndex === -1 || currentIndex === tiersOrder.length - 1) {
-    return ""; // No next tier
-  }
-  return tiersOrder[currentIndex + 1];
-}
