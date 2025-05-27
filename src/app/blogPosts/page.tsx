@@ -1,5 +1,5 @@
 "use client";
-import { collection, addDoc, doc, getDoc, onSnapshot } from 'firebase/firestore'; // Import getDoc and onSnapshot
+import { collection, addDoc, doc, onSnapshot } from 'firebase/firestore'; // Import onSnapshot
 import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 import { db } from '../../../firebase/firebase';
 import { uploadToCloudinary } from '../../utils/cloudinary';
@@ -14,7 +14,7 @@ import "react-quill/dist/quill.snow.css";
 
 export default function Dashboard() {
   const [content, setContent] = useState("");
-  const [showDropdown, setShowDropdown] = useState(false);
+  
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [url, setUrl] = useState("");
   const [title, setTitle] = useState("");
@@ -284,7 +284,7 @@ export default function Dashboard() {
         <div className="mt-6 flex flex-col justify-end items-end">
           {!canBlog && (
             <p className="text-red-600 text-sm mb-2 text-right">
-              You've achieved **{currentTierAchievement.charAt(0).toUpperCase() + currentTierAchievement.slice(1)} Tier** by content!
+              You have achieved **{currentTierAchievement.charAt(0).toUpperCase() + currentTierAchievement.slice(1)} Tier** by content!
               Please **upgrade your subscription** to publish blogs.
             </p>
           )}
