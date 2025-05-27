@@ -32,7 +32,10 @@ import {
   Menu,
   Bell,
 } from "lucide-react";
-import { BrowserRouter as Router, Link } from "react-router-dom"; // Import Link and Router
+// REMOVE THESE IMPORTS:
+// import { BrowserRouter as Router, Link } from "react-router-dom";
+// USE NEXT.JS's LINK COMPONENT INSTEAD:
+import Link from "next/link"; // Import Link from next/link
 
 ChartJS.register(
   CategoryScale,
@@ -81,6 +84,8 @@ const Dashboard = () => {
       });
 
       // Optional: Filter views if needed, otherwise keep global
+      // Note: If 'views' collection is global, this will count all views, not just for the current user's posts.
+      // You might need to adjust your data structure or query if you want user-specific total views.
       const unsubscribeViews = onSnapshot(collection(db, "views"), (snapshot) => {
         let total = 0;
         snapshot.docs.forEach((doc) => {
@@ -90,6 +95,8 @@ const Dashboard = () => {
       });
 
       // Optional: Filter comments for user if needed
+      // Similar to views, this will count all comments in the 'comments' collection.
+      // If comments are linked to posts, you might need a more complex query joining posts.
       const unsubscribeComments = onSnapshot(
         collection(db, "comments"),
         (snapshot) => {
@@ -98,6 +105,7 @@ const Dashboard = () => {
         }
       );
 
+      // Optional: Filter users if needed
       const unsubscribeUsers = onSnapshot(collection(db, "users"), (snapshot) => {
         setActiveUsers(snapshot.size);
       });
@@ -136,77 +144,78 @@ const Dashboard = () => {
   };
 
   return (
-    <Router> {/* Wrap your component with Router */}
-      <div className="flex min-h-screen bg-gray-900 text-white">
-        <div className="w-64 bg-gray-800 p-5">
-          <h2 className="text-xl font-bold mb-6">Admin Panel</h2>
-          <ul>
-            {/* Use Link component for navigation */}
-            <li className="mb-3">
-              <Link to="/" className="flex items-center gap-2 hover:text-blue-400 transition-colors">
-                <Home size={18} /> Home
-              </Link>
-            </li>
-            <li className="mb-3">
-              <Link to="/blogPosts" className="flex items-center gap-2 hover:text-blue-400 transition-colors">
-                <Edit size={18} /> Create Post
-              </Link>
-            </li>
-            <li className="mb-3">
-              <Link to="/delete" className="flex items-center gap-2 hover:text-blue-400 transition-colors">
-                <BookOpen size={18} /> Categories
-              </Link>
-            </li>
-            <li className="mb-3">
-              <Link to="/subscriptions" className="flex items-center gap-2 hover:text-blue-400 transition-colors">
-                <MessageSquare size={18} /> Subscriptions
-              </Link>
-            </li>
-    
-          </ul>
+    // REMOVE <Router> WRAPPER
+    <div className="flex min-h-screen bg-gray-900 text-white">
+      <div className="w-64 bg-gray-800 p-5">
+        <h2 className="text-xl font-bold mb-6">Admin Panel</h2>
+        <ul>
+          {/* Use Link component from "next/link" for navigation */}
+          <li className="mb-3">
+            <Link href="/" className="flex items-center gap-2 hover:text-blue-400 transition-colors">
+              <Home size={18} /> Home
+            </Link>
+          </li>
+          <li className="mb-3">
+            <Link href="/blogPosts" className="flex items-center gap-2 hover:text-blue-400 transition-colors">
+              {/* Corrected path based on your previous discussion */}
+              <Edit size={18} /> Create Post
+            </Link>
+          </li>
+          <li className="mb-3">
+            <Link href="/delete" className="flex items-center gap-2 hover:text-blue-400 transition-colors">
+              <BookOpen size={18} /> Categories
+            </Link>
+          </li>
+          <li className="mb-3">
+            <Link href="/subscriptions" className="flex items-center gap-2 hover:text-blue-400 transition-colors">
+              {/* Corrected path based on your previous discussion */}
+              <MessageSquare size={18} /> Subscriptions
+            </Link>
+          </li>
+        </ul>
+      </div>
+
+      <div className="flex-1 p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Dashboard</h1>
+          <div className="flex gap-4">
+            <Bell size={24} />
+            <Menu size={24} />
+          </div>
         </div>
 
-        <div className="flex-1 p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold">Dashboard</h1>
-            <div className="flex gap-4">
-              <Bell size={24} />
-              <Menu size={24} />
-            </div>
+        <div className="grid grid-cols-4 gap-6 mb-6">
+          <div className="bg-gray-800 p-4 rounded-lg">
+            <h3 className="text-lg">Total Posts</h3>
+            <p className="text-2xl font-bold">{totalPosts}</p>
           </div>
-
-          <div className="grid grid-cols-4 gap-6 mb-6">
-            <div className="bg-gray-800 p-4 rounded-lg">
-              <h3 className="text-lg">Total Posts</h3>
-              <p className="text-2xl font-bold">{totalPosts}</p>
-            </div>
-            <div className="bg-gray-800 p-4 rounded-lg">
-              <h3 className="text-lg">Total Views</h3>
-              <p className="text-2xl font-bold">{totalViews}</p>
-            </div>
-            <div className="bg-gray-800 p-4 rounded-lg">
-              <h3 className="text-lg">Total Comments</h3>
-              <p className="text-2xl font-bold">{totalComments}</p>
-            </div>
-            <div className="bg-gray-800 p-4 rounded-lg">
-              <h3 className="text-lg">Active Users</h3>
-              <p className="text-2xl font-bold">{activeUsers}</p>
-            </div>
+          <div className="bg-gray-800 p-4 rounded-lg">
+            <h3 className="text-lg">Total Views</h3>
+            <p className="text-2xl font-bold">{totalViews}</p>
           </div>
+          <div className="bg-gray-800 p-4 rounded-lg">
+            <h3 className="text-lg">Total Comments</h3>
+            <p className="text-2xl font-bold">{totalComments}</p>
+          </div>
+          <div className="bg-gray-800 p-4 rounded-lg">
+            <h3 className="text-lg">Active Users</h3>
+            <p className="text-2xl font-bold">{activeUsers}</p>
+          </div>
+        </div>
 
-          <div className="grid grid-cols-2 gap-6">
-            <div className="bg-gray-800 p-4 rounded-lg">
-              <h3 className="text-lg mb-3">Post Views</h3>
-              <Bar data={viewsChartData} />
-            </div>
-            <div className="bg-gray-800 p-4 rounded-lg">
-              <h3 className="text-lg mb-3">Comments per Post</h3>
+        <div className="grid grid-cols-2 gap-6">
+          <div className="bg-gray-800 p-4 rounded-lg">
+            <h3 className="text-lg mb-3">Post Views</h3>
+            <Bar data={viewsChartData} />
+          </div>
+          <div className="bg-gray-800 p-4 rounded-lg">
+            <h3 className="text-lg mb-3">Comments per Post</h3>
             <Bar data={commentsChartData} />
           </div>
         </div>
       </div>
     </div>
-    </Router>
+    // REMOVE </Router>
   );
 };
 
