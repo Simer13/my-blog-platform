@@ -162,8 +162,8 @@ const Dashboard = () => {
             </Link>
           </li>
           <li className="mb-3">
-            <Link href="/delete" className="flex items-center gap-2 hover:text-blue-400 transition-colors">
-              <BookOpen size={18} /> Categories
+            <Link href="/chat" className="flex items-center gap-2 hover:text-blue-400 transition-colors">
+              <BookOpen size={18} /> Chat
             </Link>
           </li>
           <li className="mb-3">
